@@ -123,18 +123,22 @@ class TestDataCleaner(unittest.TestCase):
         - Verificar que las columnas no especificadas (ej: "city") permanecen sin cambios (si comparas Series completas, usar pandas.testing.assert_series_equal() ya que maneja mejor los índices y tipos de Pandas; si comparas valores individuales, self.assertEqual es suficiente)
         """
         # Crear un df con espacios en blanco
-        df = make_sample_df()
+        df = pd.DataFrame({
+            "name": [" Alice ", "  Bob  ", " Carol  "],
+            "age": [25, 30, 35],
+            "city": ["SCL", "LPZ", "SCL"]
+        })
         cleaner = DataCleaner()
         
         result = cleaner.trim_strings(df, ["name"])
         
         # Verificar que el df original no fue modificado
         self.assertEqual(df.loc[0, "name"], " Alice ")
-        self.assertEqual(df.loc[3, "name"], " Carol  ")
+        self.assertEqual(df.loc[2, "name"], " Carol  ")
         
         # Verificar que en el df resultante los valores de "name" no tienen espacios
         self.assertEqual(result.loc[0, "name"], "Alice")
-        self.assertEqual(result.loc[3, "name"], "Carol")
+        self.assertEqual(result.loc[2, "name"], "Carol")
         
         # Verificar que otras columnas no cambiaron
         pdt.assert_series_equal(result["city"], df["city"], check_names=True)
